@@ -56,4 +56,52 @@ git init . && git add . && git commit -m "Init"
 ### Tasks Screen
 - Header "Tasks To-Do" @position=Positions.top-left
 - Subheader "Complete the tasks and make a contribution the first lifestyle metaverse!"
-- TaskList <TaskListItem> --task-name --task- --task
+- TaskList <TaskListItem> --task-name
+
+  
+  
+### Other
+```typescript
+
+enum ActivityTypes = "CYCLING";
+enum OperatingSystemTypes = "ANDROID" | "IOS";  
+  
+// ChatGPT 
+// https://badcyclist.ca/how-to-carry-your-phone-while-cycling/#bikespecific-phone-case
+// https://zizebikes.com/where-do-you-put-your-smartphone-when-you-ride/
+enum SmartphonePositions = "HANDLEBAR" | "HANDLEBAR_BAG" | "HANDLEBAR_AND_PLASTIC_BAG" | "FRAME_BAG" | "BASKET" | "BACKPACK" | "SHORTS_POCKET" | "JERSEY_POCKET" | "ARMBAND" | "WAISTBAND" | "HAND";
+  
+// https://www.adventurecycling.org/guided-tours/surface-types/
+enum SurfaceTypes = "PAVED" | "DIRT" | "GRAVEL" | "BIKE_TRAIL";  
+
+// https://www.google.com/search?q=bicycle+types&oq=bicycle+types&aqs=chrome..69i57j0i512l2j0i20i263i512j0i512j0i22i30i625j0i15i22i30i625j0i22i30i625l3.5111j0j7&sourceid=chrome&ie=UTF-8
+enum BicycleTypes = "MOUNTAIN" | "HYBRID" | "CYCLOCROSS" | "FIXED_GEAR" | "TIME_TRIAL" | "ROAD" | "TOURING" | "TANDAM" | "FATBIKE" | "FOLDING" | "BEACH_CRUISER" | "RECUMBENT" | "CRUISER";
+  
+  
+type CyclingSessionMetadata = {
+  activity: ActivityTypes.CYCLING,  
+  version: "1.0.0",
+
+  // accountId: string,
+
+  operatingSystem: OperatingSystemTypes.ANDROID,
+  smartphoneModel: string, // e.g. Samsung Galaxy S23 Ultra
+
+  smartphonePosition: smartphonePositions,
+  
+  surface: SyfraceTypes, 
+  bicycleType: BicycleTypes,
+  isElectric: bool, // e.g. there are folding bicycles as well as electric folding bicycles
+  
+  // Desired interval in milliseconds between sensor updates
+  sensorsUpdateInterval: 16,
+};  
+
+type SessionMetadata = CyclingSessionMetadata;
+  
+type Task = {
+  id: number,
+  sessionMetadata: SessionMetadata,
+};
+
+```
