@@ -33,3 +33,15 @@ cd with-react-native-web
 yarn install
 git init . && git add . && git commit -m "Init"
 ```
+
+
+## (Unauthorized)
+- Login Screen => Home Screen
+
+## (Authorised Using Private Key) Screens:
+- Home Screen (default) => Tasks Screen
+- Tasks Screen <=> Selected Task Confirmation Screen => Session Screen (createSession, destroySession) =confirmation=> Session Summary Screen => Session History Screen
+- Session History Screen <=> Session View Screen
+- Settings Screen => Login Screen
+
+
