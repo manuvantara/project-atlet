@@ -45,3 +45,15 @@ git init . && git add . && git commit -m "Init"
 - Settings Screen => Login Screen
 
 
+### Welcome Screen 
+- Hearder "Welcome!"
+- Input privateKey
+
+### Home Screen
+- Header Hello, ${wallet.address()} @position=Positions.center-middle
+- Button "Start a session!" @link=<Tasks Screen />
+
+### Tasks Screen
+- Header "Tasks To-Do" @position=Positions.top-left
+- Subheader "Complete the tasks and make a contribution the first lifestyle metaverse!"
+- TaskList <TaskListItem> --task-name --task- --task
