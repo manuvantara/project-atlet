@@ -1,33 +1,23 @@
-import { StyleSheet, Text, View } from "react-native";
-import { StatusBar } from "expo-status-bar";
-import { Button } from "ui";
+import { NavigationContainer } from '@react-navigation/native';
+import { StatusBar } from 'expo-status-bar';
+import { NativeBaseProvider } from 'native-base';
 
-export default function Native() {
+import Navigation from './src/screens/Navigation';
+import { usePrivateKeyStore } from './src/stores/privateKey.store';
+import 'expo-dev-client';
+
+export default function App() {
+  const hasHydrated = usePrivateKeyStore((state) => state._hasHydrated);
+
+  // TODO: Add a loading screen or something (maybe a splash screen)
+  if (!hasHydrated) return null;
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Native</Text>
-      <Button
-        onClick={() => {
-          console.log("Pressed!");
-          alert("Pressed!");
-        }}
-        text="Boop"
-      />
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <NativeBaseProvider>
+        <Navigation />
+        <StatusBar style='auto' />
+      </NativeBaseProvider>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  header: {
-    fontWeight: "bold",
-    marginBottom: 20,
-    fontSize: 36,
-  },
-});

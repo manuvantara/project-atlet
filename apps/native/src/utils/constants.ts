@@ -1,0 +1,1 @@
+export const SENSOR_READINGS_BATCH_SIZE = 375;
