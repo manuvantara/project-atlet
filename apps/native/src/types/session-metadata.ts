@@ -1,8 +1,10 @@
 export enum ActivityTypes {
   CYCLING = 'CYCLING',
+  WALKING = 'WALKING',
+  SCOOTERING = 'SCOOTERING',
+  RUNNING = 'RUNNING',
+  DRIVING = 'DRIVING',
 }
-
-// export type ActivityTypes = (typeof ActivityTypes)[keyof typeof ActivityTypes];
 
 export enum OperatingSystemTypes {
   ANDROID = 'ANDROID',
@@ -35,7 +37,6 @@ export enum SurfaceTypes {
   GRAVEL = 'GRAVEL',
   BIKE_TRAIL = 'BIKE_TRAIL',
   SNOW = 'SNOW',
-  OTHER = 'OTHER',
 }
 
 // export const WeatherConditions = {
@@ -46,7 +47,6 @@ export enum BicycleTypes {
   MOUNTAIN = 'MOUNTAIN',
   ROAD = 'ROAD',
   HYBRID = 'HYBRID',
-  ELECTRIC = 'ELECTRIC',
   CYCLOCROSS = 'CYCLOCROSS',
   FIXED_GEAR = 'FIXED_GEAR',
   TIME_TRIAL = 'TIME_TRIAL',
@@ -59,11 +59,10 @@ export enum BicycleTypes {
   RECUMBENT = 'RECUMBENT',
   TRIKE = 'TRIKE',
   CRUISER = 'CRUISER',
-  OTHER = 'OTHER',
 }
 
-type CyclingSessionMetadata = {
-  activity: ActivityTypes.CYCLING;
+export type SessionMetadata = {
+  activity: ActivityTypes;
   sessionMetadataSchemaVersion: '1.0.0';
 
   // accountId: string,
@@ -71,21 +70,22 @@ type CyclingSessionMetadata = {
   operatingSystem: OperatingSystemTypes.ANDROID;
   smartphoneModel: string; // e.g. Samsung Galaxy S23 Ultra
 
-  smartphonePosition: SmartphonePositions;
+  smartphonePosition: SmartphonePositions | SmartphonePositions[];
 
-  surface: SurfaceTypes;
-  bicycleType: BicycleTypes;
-  isElectric: boolean; // e.g. there are folding bicycles as well as electric folding bicycles
+  surface?: SurfaceTypes;
+  bicycleType?: BicycleTypes;
+  isElectric?: boolean; // e.g. there are folding bicycles as well as electric folding bicycles
 
   // Desired interval in milliseconds between sensor updates
   sensorUpdateInterval: 16;
 };
 
-export type SessionMetadata = CyclingSessionMetadata;
+// export type SessionMetadata = CyclingSessionMetadata;
 
 export type Task = {
   taskId: number;
-  accountId: string;
+  creatorId: string;
   createdAt: Date;
+  description: string;
   sessionMetadata: SessionMetadata;
 };
