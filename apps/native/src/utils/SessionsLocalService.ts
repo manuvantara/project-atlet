@@ -174,13 +174,10 @@ export default class SessionsLocalService {
     return sessions;
   }
 
-  public async getSessionByFilename(sessionFilename: string): Promise<Session> {
-    const sessionFile = await FileSystem.readAsStringAsync(
-      this._documentDirectory + sessionFilename,
-      {
-        encoding: FileSystem.EncodingType.UTF8,
-      }
-    );
+  public async getSessionByFileUri(sessionFileUri: string): Promise<Session> {
+    const sessionFile = await FileSystem.readAsStringAsync(sessionFileUri, {
+      encoding: FileSystem.EncodingType.UTF8,
+    });
 
     // BREAKING: Parse session file to Session type object and return it to the caller function (e.g. SessionsScreen)
     const session: Session = JSON.parse(sessionFile);
@@ -202,6 +199,7 @@ export async function shareFile(fileUri: string) {
       url: fileUri,
     });
   } catch (error) {
-    alert(error);
+    // The error is thrown when the user cancels the share action
+    return false;
   }
 }
