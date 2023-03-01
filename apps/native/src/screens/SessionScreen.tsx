@@ -1,18 +1,23 @@
-import { Button, Center, Heading } from 'native-base';
-import type { RootStackScreenProps } from '../types/navigation';
-import { useRef, useState } from 'react';
 import { Accelerometer, Gyroscope, Magnetometer } from 'expo-sensors';
-import { Sensor } from '../types/session-metadata';
-import { SENSOR_READINGS_BATCH_SIZE } from '../utils/constants';
-import SessionsLocalService from '../utils/SessionsLocalService';
-import type { SensorReading } from '../types/sensors';
+import { Button, Center, Heading, HStack, Text } from 'native-base';
+import { useRef, useState } from 'react';
+import { Alert, View } from 'react-native';
+
 import { usePrivateKeyStore } from '../stores/privateKey.store';
+import { useSelectedTask } from '../stores/selectedTask.store';
+import type { RootStackScreenProps } from '../types/navigation';
+import type { SensorReading } from '../types/sensors';
+import { Sensor } from '../types/session-metadata';
+import SessionsLocalService from '../utils/SessionsLocalService';
+import { SENSOR_READINGS_BATCH_SIZE } from '../utils/constants';
+import { usePreventNavigationBack } from '../utils/hooks/usePreventNavigationBack';
 
 export default function SessionScreen({
-                                        navigation,
-                                        route,
-                                      }: RootStackScreenProps<'SessionScreen'>) {
-  const { sessionMetadata } = route.params;
+  navigation,
+}: RootStackScreenProps<'SessionScreen'>) {
+  usePreventNavigationBack(navigation);
+
+  const selectedTask = useSelectedTask((state) => state.selectedTask);
   const privateKey = usePrivateKeyStore((state) => state.privateKey);
 
   const [isRecording, setIsRecording] = useState(false);
@@ -21,8 +26,14 @@ export default function SessionScreen({
   const [now, setNow] = useState<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const sessionsLocalService = useRef(new SessionsLocalService(privateKey));
+  const [sessionsLocalService] = useState(
+    () => new SessionsLocalService(privateKey)
+  );
 
+  const [
+    totalWrittenSensorReadingsBatches,
+    setTotalWrittenSensorReadingsBatches,
+  ] = useState(0);
   const temporarySensorReadingsBatch = useRef<SensorReading[]>([]);
 
   const [accelerometerSubscription, setAccelerometerSubscription] = useState<{
@@ -44,9 +55,14 @@ export default function SessionScreen({
         ) {
           console.log('batch full');
 
-          // TODO: test with await and without await
-          sessionsLocalService.current.writeSensorReadingBatch(
+          // Should be without await
+          sessionsLocalService.writeSensorReadingBatch(
             temporarySensorReadingsBatch.current
+          );
+
+          setTotalWrittenSensorReadingsBatches(
+            (prevTotalWrittenSensorReadingsBatches) =>
+              prevTotalWrittenSensorReadingsBatches + 1
           );
 
           temporarySensorReadingsBatch.current = [];
@@ -72,9 +88,14 @@ export default function SessionScreen({
         ) {
           console.log('batch full');
 
-          // TODO: test with await and without await
-          sessionsLocalService.current.writeSensorReadingBatch(
+          // Should be without await
+          sessionsLocalService.writeSensorReadingBatch(
             temporarySensorReadingsBatch.current
+          );
+
+          setTotalWrittenSensorReadingsBatches(
+            (prevTotalWrittenSensorReadingsBatches) =>
+              prevTotalWrittenSensorReadingsBatches + 1
           );
 
           temporarySensorReadingsBatch.current = [];
@@ -100,9 +121,14 @@ export default function SessionScreen({
         ) {
           console.log('batch full');
 
-          // TODO: test with await and without await
-          sessionsLocalService.current.writeSensorReadingBatch(
+          // Should be without await
+          sessionsLocalService.writeSensorReadingBatch(
             temporarySensorReadingsBatch.current
+          );
+
+          setTotalWrittenSensorReadingsBatches(
+            (prevTotalWrittenSensorReadingsBatches) =>
+              prevTotalWrittenSensorReadingsBatches + 1
           );
 
           temporarySensorReadingsBatch.current = [];
@@ -134,23 +160,22 @@ export default function SessionScreen({
     setMagnetometerSubscription(null);
   };
 
-  // useEffect(() => {
-  //   Accelerometer.setUpdateInterval(16);
-  //   _gyroscopeSubscribe();
-  //
-  //   return () => _accelerometerUnsubscribe();
-  // }, [isRecording]);
-
   const handleStartRecording = async () => {
     setIsRecording(true);
 
-    Accelerometer.setUpdateInterval(sessionMetadata.sensorUpdateInterval);
+    Accelerometer.setUpdateInterval(
+      selectedTask.sessionMetadata.sensorUpdateInterval
+    );
     _accelerometerSubscribe();
 
-    Gyroscope.setUpdateInterval(sessionMetadata.sensorUpdateInterval);
+    Gyroscope.setUpdateInterval(
+      selectedTask.sessionMetadata.sensorUpdateInterval
+    );
     _gyroscopeSubscribe();
 
-    Magnetometer.setUpdateInterval(sessionMetadata.sensorUpdateInterval);
+    Magnetometer.setUpdateInterval(
+      selectedTask.sessionMetadata.sensorUpdateInterval
+    );
     _magnetometerSubscribe();
 
     setStartTime(Date.now());
@@ -165,7 +190,7 @@ export default function SessionScreen({
       setNow(Date.now());
     }, 1000);
 
-    await sessionsLocalService.current.createSession(sessionMetadata);
+    await sessionsLocalService.createSession(selectedTask.sessionMetadata);
   };
 
   const handleStopRecording = async () => {
@@ -179,9 +204,8 @@ export default function SessionScreen({
       clearInterval(intervalRef.current);
     }
 
-    const sessionFileUri = sessionsLocalService.current.sessionFileUri;
-    const sensorReadingsFileUri =
-      sessionsLocalService.current.sensorReadingsFileUri;
+    const sessionFileUri = sessionsLocalService.sessionFileUri;
+    const sensorReadingsFileUri = sessionsLocalService.sensorReadingsFileUri;
 
     if (!sessionFileUri || !sensorReadingsFileUri) {
       throw new Error(
@@ -189,10 +213,7 @@ export default function SessionScreen({
       );
     }
 
-    // TODO: redirect to summary screen after session is destroyed with total timeSpent and totalSensorReadings
-
-    const { totalSensorReadings } =
-      await sessionsLocalService.current.destroySession();
+    const { totalSensorReadings } = await sessionsLocalService.destroySession();
 
     if (!startTime || !now) {
       throw new Error('Start time or now is not defined');
@@ -204,9 +225,6 @@ export default function SessionScreen({
       sessionFileUri,
       sensorReadingsFileUri,
     });
-
-    // await shareFile(sessionFileUri);
-    // await shareFile(sensorReadingsFileUri);
   };
 
   let secondsPassed = 0;
@@ -214,18 +232,74 @@ export default function SessionScreen({
     secondsPassed = (now - startTime) / 1000;
   }
 
+  const formatSecondsPassed = (timeInSeconds: number) => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = Math.floor(timeInSeconds % 60);
+
+    return `${minutes < 10 ? '0' : ''}${minutes}:${
+      seconds < 10 ? '0' : ''
+    }${seconds}`;
+  };
+
+  const handleCancelSession = () => {
+    Alert.alert(
+      'Are you sure you want to cancel this session?',
+      'All data will be lost',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+            navigation.navigate<any>('TasksScreen');
+          },
+        },
+      ]
+    );
+  };
+
   return (
-    <Center flex={1} px={4}>
+    <Center flex={1} px={4} className='bg-primary'>
+      {!isRecording && (
+        <HStack w='100%' mb={4}>
+          <Button onPress={handleCancelSession}>Back</Button>
+        </HStack>
+      )}
       <Heading size='2xl' className='mb-4'>
         Session
       </Heading>
-      <Heading size='lg' className='mb-4'>
-        {secondsPassed}
-      </Heading>
+      <View className='mb-4'>
+        <Heading size='md' className='mb-2'>
+          Description
+        </Heading>
+        <Text className='text-lg'>{selectedTask.description}</Text>
+      </View>
+      <View className='flex-col w-full mb-6'>
+        <View className='flex-row justify-between items-center w-full bg-secondary p-2 rounded-md mb-2'>
+          <View className='flex-row p-1 bg-quinary opacity-80 rounded-md'>
+            <Text className='text-lg'>Time spent: </Text>
+          </View>
+          <Text className='text-lg'>{formatSecondsPassed(secondsPassed)}</Text>
+        </View>
+        <View className='flex-row justify-between items-center w-full bg-secondary p-2 rounded-md mb-2'>
+          <View className='flex-row p-1 bg-quinary opacity-80 rounded-md'>
+            <Text className='text-lg'>Sensor readings collected: </Text>
+          </View>
+          <Text className='text-lg'>
+            {totalWrittenSensorReadingsBatches * SENSOR_READINGS_BATCH_SIZE}
+          </Text>
+        </View>
+      </View>
       {isRecording ? (
-        <Button onPress={handleStopRecording}>Stop recording</Button>
+        <Button className='w-full' onPress={handleStopRecording}>
+          Stop recording
+        </Button>
       ) : (
-        <Button onPress={handleStartRecording}>Start recording</Button>
+        <Button className='w-full' onPress={handleStartRecording}>
+          Start recording
+        </Button>
       )}
     </Center>
   );

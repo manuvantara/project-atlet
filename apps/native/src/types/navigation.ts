@@ -1,18 +1,18 @@
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { SessionMetadata } from './session-metadata';
 
 export type RootStackParamList = {
   WelcomeScreen: undefined;
   TabNavigator: undefined;
-  SelectedTaskConfirmationScreen: { taskId: number };
-  SessionScreen: { sessionMetadata: SessionMetadata };
+  SelectedTaskConfirmationScreen: undefined;
+  SessionScreen: undefined;
   SummaryScreen: {
     totalTimeSpent: number;
     totalSensorReadings: number;
     sessionFileUri: string;
     sensorReadingsFileUri: string;
   };
+  SessionViewScreen: undefined;
 };
 
 export type TabNavigatorParamList = {
