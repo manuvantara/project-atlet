@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from './HomeScreen';
 import SelectedTaskConfirmationScreen from './SelectedTaskConfirmationScreen';
 import SessionScreen from './SessionScreen';
+import SessionViewScreen from './SessionViewScreen';
 import SessionsHistoryScreen from './SessionsHistoryScreen';
 import SettingsScreen from './SettingsScreen';
 import SummaryScreen from './SummaryScreen';
@@ -39,6 +40,7 @@ export default function Navigation() {
       />
       <Stack.Screen name='SessionScreen' component={SessionScreen} />
       <Stack.Screen name='SummaryScreen' component={SummaryScreen} />
+      <Stack.Screen name='SessionViewScreen' component={SessionViewScreen} />
     </Stack.Navigator>
   );
 }
