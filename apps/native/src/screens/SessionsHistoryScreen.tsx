@@ -1,66 +1,125 @@
-import { Box, Center, Heading, HStack, VStack } from 'native-base';
-import SessionsLocalService, { shareFile } from '../utils/SessionsLocalService';
+import { FontAwesome } from '@expo/vector-icons';
+import { useIsFocused } from '@react-navigation/native';
+import {
+  Button,
+  Heading,
+  HStack,
+  Icon,
+  Spinner,
+  Text,
+  VStack,
+} from 'native-base';
 import { useEffect, useState } from 'react';
-import { FlatList, Text } from 'react-native';
-import { usePrivateKeyStore } from '../stores/privateKey.store';
-import Share from 'react-native-share';
+import { FlatList, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function SessionsHistoryScreen() {
+import { usePrivateKeyStore } from '../stores/privateKey.store';
+import { useSelectedSession } from '../stores/selectedSession.store';
+import type { ScreenProps } from '../types/navigation';
+import SessionsLocalService, { shareFile } from '../utils/SessionsLocalService';
+
+export default function SessionsHistoryScreen({
+  navigation,
+}: ScreenProps<'HistoryScreen'>) {
+  const isFocused = useIsFocused();
+
   const privateKey = usePrivateKeyStore((state) => state.privateKey);
+
   const [sessionsLocalService] = useState(
     () => new SessionsLocalService(privateKey)
   );
+
   const [sessions, setSessions] = useState<any>([]);
+  const [loading, setLoading] = useState(true);
+
+  const setSelectedSessionFileUris = useSelectedSession(
+    (state) => state.setSessionFileUris
+  );
 
   const getSessions = async () => {
-    const sessions = await sessionsLocalService.getSessions();
-    setSessions(sessions);
+    const localSessions = await sessionsLocalService.getSessions();
+    setSessions(
+      localSessions.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
+    );
+    setLoading(false);
   };
 
   const shareSession = async (fileUri: string) => {
-    console.log('fileUri', fileUri);
     await shareFile(fileUri);
+  };
+
+  const handleSessionPress = async (fileUris: {
+    sessionFileUri: string;
+    sensorReadingsFileUri: string;
+  }) => {
+    setSelectedSessionFileUris(fileUris);
+
+    navigation.navigate<any>('SessionViewScreen');
   };
 
   // TODO: fix type
   const renderItem = ({ item }: { item: any }) => {
-    const filesUris = sessionsLocalService.generateFileUrisFromSessionId(
+    const fileUris = sessionsLocalService.generateFileUrisFromSessionId(
       item.sessionId
     );
 
     return (
-      <Box>
-        <HStack space={4}>
-          <VStack p={4} space={2}>
-            <Text>{item.sessionId}</Text>
-            <Share.Button
-              iconSrc={require('../../assets/share.png')}
-              onPress={() => shareSession(filesUris.sessionFileUri)}
+      <TouchableOpacity onPress={() => handleSessionPress(fileUris)}>
+        <HStack
+          rounded={6}
+          p={2}
+          space={4}
+          alignItems='center'
+          justifyContent='center'
+          className='bg-secondary w-full'
+        >
+          <Text fontSize='lg' maxW={100} className='flex-shrink'>
+            {item.sessionId}
+          </Text>
+          <VStack space={2}>
+            <Button
+              leftIcon={<Icon as={FontAwesome} name='share' color='white' />}
+              onPress={() => shareSession(fileUris.sessionFileUri)}
             >
               session.json
-            </Share.Button>
-            <Share.Button
-              iconSrc={require('../../assets/share.png')}
-              onPress={() => shareSession(filesUris.sessionFileUri)}
+            </Button>
+            <Button
+              leftIcon={<Icon as={FontAwesome} name='share' color='white' />}
+              onPress={() => shareSession(fileUris.sensorReadingsFileUri)}
             >
               sensorReadings.csv
-            </Share.Button>
+            </Button>
           </VStack>
         </HStack>
-      </Box>
+      </TouchableOpacity>
     );
   };
 
+  const itemSeparator = () => <View className='h-4' />;
+
   useEffect(() => {
-    getSessions();
-  }, []);
+    if (isFocused) {
+      getSessions();
+    }
+  }, [isFocused]);
 
   return (
-    <Center flex={1} px={4}>
-      <Heading size='2xl' className='mb-4'>
+    <SafeAreaView className='flex-1 items-center h-full px-4 bg-primary pb-10'>
+      <Heading size='2xl' className='mb-4 pt-36'>
         Sessions History
       </Heading>
-      <FlatList data={sessions} renderItem={renderItem} />
-    </Center>
+      {loading ? (
+        <HStack space={4} pt={20} justifyContent='center' alignItems='center'>
+          <Spinner size={72} />
+        </HStack>
+      ) : (
+        <FlatList
+          ItemSeparatorComponent={itemSeparator}
+          data={sessions}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.sessionId}
+        />
+      )}
+    </SafeAreaView>
   );
 }
