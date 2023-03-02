@@ -4,6 +4,7 @@
     "strict": true,
     "noImplicitAny": true,
     "importsNotUsedAsValues": "error",
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext"
   }
 }

@@ -1,7 +1,14 @@
-import { Accelerometer, Gyroscope, Magnetometer } from 'expo-sensors';
 import { Button, Center, Heading, HStack, Text } from 'native-base';
 import { useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
+import {
+  accelerometer,
+  gyroscope,
+  magnetometer,
+  SensorTypes,
+  setUpdateIntervalForType,
+} from 'react-native-sensors';
+import type { Subscription } from 'rxjs';
 
 import { usePrivateKeyStore } from '../stores/privateKey.store';
 import { useSelectedTask } from '../stores/selectedTask.store';
@@ -11,6 +18,18 @@ import { Sensor } from '../types/session-metadata';
 import SessionsLocalService from '../utils/SessionsLocalService';
 import { SENSOR_READINGS_BATCH_SIZE } from '../utils/constants';
 import { usePreventNavigationBack } from '../utils/hooks/usePreventNavigationBack';
+
+// setUpdateIntervalForType(SensorTypes.accelerometer, 30);
+//
+// const subscription = accelerometer
+//   .pipe(
+//     catchError((error) => {
+//       Alert.alert('Error', error.message);
+//       return [];
+//     }),
+//     map(({ x, y, z }) => x + y + z)
+//   )
+//   .subscribe((speed) => console.log(`You moved your phone with ${speed}`));
 
 export default function SessionScreen({
   navigation,
@@ -36,19 +55,16 @@ export default function SessionScreen({
   ] = useState(0);
   const temporarySensorReadingsBatch = useRef<SensorReading[]>([]);
 
-  const [accelerometerSubscription, setAccelerometerSubscription] = useState<{
-    remove: () => void;
-  } | null>(null);
-  const [gyroscopeSubscription, setGyroscopeSubscription] = useState<{
-    remove: () => void;
-  } | null>(null);
-  const [magnetometerSubscription, setMagnetometerSubscription] = useState<{
-    remove: () => void;
-  } | null>(null);
+  const [accelerometerSubscription, setAccelerometerSubscription] =
+    useState<Subscription | null>(null);
+  const [gyroscopeSubscription, setGyroscopeSubscription] =
+    useState<Subscription | null>(null);
+  const [magnetometerSubscription, setMagnetometerSubscription] =
+    useState<Subscription | null>(null);
 
   const _accelerometerSubscribe = () => {
     setAccelerometerSubscription(
-      Accelerometer.addListener(({ x, y, z }) => {
+      accelerometer.subscribe(({ x, y, z }) => {
         if (
           temporarySensorReadingsBatch.current.length ===
           SENSOR_READINGS_BATCH_SIZE
@@ -81,7 +97,7 @@ export default function SessionScreen({
 
   const _gyroscopeSubscribe = () => {
     setGyroscopeSubscription(
-      Gyroscope.addListener(({ x, y, z }) => {
+      gyroscope.subscribe(({ x, y, z }) => {
         if (
           temporarySensorReadingsBatch.current.length ===
           SENSOR_READINGS_BATCH_SIZE
@@ -114,7 +130,7 @@ export default function SessionScreen({
 
   const _magnetometerSubscribe = () => {
     setMagnetometerSubscription(
-      Magnetometer.addListener(({ x, y, z }) => {
+      magnetometer.subscribe(({ x, y, z }) => {
         if (
           temporarySensorReadingsBatch.current.length ===
           SENSOR_READINGS_BATCH_SIZE
@@ -146,34 +162,37 @@ export default function SessionScreen({
   };
 
   const _accelerometerUnsubscribe = () => {
-    accelerometerSubscription && accelerometerSubscription.remove();
+    accelerometerSubscription && accelerometerSubscription.unsubscribe();
     setAccelerometerSubscription(null);
   };
 
   const _gyroscopeUnsubscribe = () => {
-    gyroscopeSubscription && gyroscopeSubscription.remove();
+    gyroscopeSubscription && gyroscopeSubscription.unsubscribe();
     setGyroscopeSubscription(null);
   };
 
   const _magnetometerUnsubscribe = () => {
-    magnetometerSubscription && magnetometerSubscription.remove();
+    magnetometerSubscription && magnetometerSubscription.unsubscribe();
     setMagnetometerSubscription(null);
   };
 
   const handleStartRecording = async () => {
     setIsRecording(true);
 
-    Accelerometer.setUpdateInterval(
+    setUpdateIntervalForType(
+      SensorTypes.accelerometer,
       selectedTask.sessionMetadata.sensorUpdateInterval
     );
     _accelerometerSubscribe();
 
-    Gyroscope.setUpdateInterval(
+    setUpdateIntervalForType(
+      SensorTypes.gyroscope,
       selectedTask.sessionMetadata.sensorUpdateInterval
     );
     _gyroscopeSubscribe();
 
-    Magnetometer.setUpdateInterval(
+    setUpdateIntervalForType(
+      SensorTypes.magnetometer,
       selectedTask.sessionMetadata.sensorUpdateInterval
     );
     _magnetometerSubscribe();
