@@ -2,19 +2,17 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useEffect } from 'react';
 
 export const usePreventNavigationBack = (
-  navigation: NativeStackNavigationProp<any>
+  navigation: NativeStackNavigationProp<any>,
+  sessionIsRunning: boolean
 ) => {
   useEffect(
     () =>
       navigation.addListener('beforeRemove', (e) => {
-        // if (!hasUnsavedChanges) {
-        //   // If we don't have unsaved changes, then we don't need to do anything
-        //   return;
-        // }
-
-        // Prevent default behavior of leaving the screen
-        e.preventDefault();
+        if (sessionIsRunning) {
+          // Prevent default behavior of leaving the screen
+          e.preventDefault();
+        }
       }),
-    [navigation]
+    [navigation, sessionIsRunning]
   );
 };
