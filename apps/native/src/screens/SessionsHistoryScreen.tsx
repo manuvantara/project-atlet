@@ -13,14 +13,15 @@ import { useEffect, useState } from 'react';
 import { FlatList, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import EmptySessionsHistory from '../components/EmptySessionsHistory';
 import { usePrivateKeyStore } from '../stores/privateKey.store';
 import { useSelectedSession } from '../stores/selectedSession.store';
-import type { ScreenProps } from '../types/navigation';
+import type { HistoryScreenProps } from '../types/navigation';
 import SessionsLocalService, { shareFile } from '../utils/SessionsLocalService';
 
 export default function SessionsHistoryScreen({
   navigation,
-}: ScreenProps<'HistoryScreen'>) {
+}: HistoryScreenProps<'SessionsHistoryScreen'>) {
   const isFocused = useIsFocused();
 
   const privateKey = usePrivateKeyStore((state) => state.privateKey);
@@ -54,7 +55,7 @@ export default function SessionsHistoryScreen({
   }) => {
     setSelectedSessionFileUris(fileUris);
 
-    navigation.navigate<any>('SessionViewScreen');
+    navigation.navigate('SessionViewScreen');
   };
 
   // TODO: fix type
@@ -114,9 +115,10 @@ export default function SessionsHistoryScreen({
         </HStack>
       ) : (
         <FlatList
-          ItemSeparatorComponent={itemSeparator}
           data={sessions}
           renderItem={renderItem}
+          ItemSeparatorComponent={itemSeparator}
+          ListEmptyComponent={EmptySessionsHistory}
           keyExtractor={(item) => item.sessionId}
         />
       )}
