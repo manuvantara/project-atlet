@@ -1,10 +1,10 @@
 import { Button, Center, Heading } from 'native-base';
 
-import type { ScreenProps } from '../types/navigation';
+import type { TabScreenProps } from '../types/navigation';
 
-export default function HomeScreen({ navigation }: ScreenProps<'HomeScreen'>) {
+export default function HomeScreen({ navigation }: TabScreenProps<'Home'>) {
   const startSession = () => {
-    navigation.navigate('TasksScreen');
+    navigation.navigate('Tasks', { screen: 'TasksScreen' });
   };
 
   return (

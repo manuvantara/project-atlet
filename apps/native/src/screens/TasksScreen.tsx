@@ -2,13 +2,13 @@ import { Box, FlatList, Heading, HStack, Text, VStack } from 'native-base';
 import { TouchableOpacity, View } from 'react-native';
 
 import { useSelectedTask } from '../stores/selectedTask.store';
-import type { ScreenProps } from '../types/navigation';
+import type { TasksScreenProps } from '../types/navigation';
 import type { Task } from '../types/session-metadata';
 import { TASKS } from '../utils/constants';
 
 export default function TasksScreen({
   navigation,
-}: ScreenProps<'TasksScreen'>) {
+}: TasksScreenProps<'TasksScreen'>) {
   const setSelectedTask = useSelectedTask((state) => state.setSelectedTask);
 
   const handleTaskPress = (task: Task) => {

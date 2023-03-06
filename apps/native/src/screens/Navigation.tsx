@@ -13,54 +13,51 @@ import WelcomeScreen from './WelcomeScreen';
 import TabBarIcon from '../components/TabBarIcon';
 import { usePrivateKeyStore } from '../stores/privateKey.store';
 import type {
+  HistoryScreenParamList,
   RootStackParamList,
   TabNavigatorParamList,
+  TasksScreenParamList,
 } from '../types/navigation';
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const RootStack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabNavigatorParamList>();
 
+const HistoryStack = createNativeStackNavigator<HistoryScreenParamList>();
+const TasksStack = createNativeStackNavigator<TasksScreenParamList>();
 export default function Navigation() {
   const isSignedIn = usePrivateKeyStore((state) => state.signedIn);
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <RootStack.Navigator screenOptions={{ headerShown: false }}>
       {isSignedIn ? (
-        <Stack.Screen name='TabNavigator' component={BottomTabNavigator} />
+        <RootStack.Screen name='TabNavigator' component={BottomTabNavigator} />
       ) : (
-        <Stack.Screen
+        <RootStack.Screen
           options={{ headerShown: false }}
           name='WelcomeScreen'
           component={WelcomeScreen}
         />
       )}
-      <Stack.Screen
-        name='SelectedTaskConfirmationScreen'
-        component={SelectedTaskConfirmationScreen}
-      />
-      <Stack.Screen name='SessionScreen' component={SessionScreen} />
-      <Stack.Screen name='SummaryScreen' component={SummaryScreen} />
-      <Stack.Screen name='SessionViewScreen' component={SessionViewScreen} />
-    </Stack.Navigator>
+    </RootStack.Navigator>
   );
 }
 
 function BottomTabNavigator() {
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
+    <Tab.Navigator id='TabNavigation' screenOptions={{ headerShown: false }}>
       <Tab.Screen
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name='home' color={color} />,
         }}
-        name='HomeScreen'
+        name='Home'
         component={HomeScreen}
       />
       <Tab.Screen
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name='tasks' color={color} />,
         }}
-        name='TasksScreen'
-        component={TasksScreen}
+        name='Tasks'
+        component={TasksStackNavigator}
       />
       <Tab.Screen
         options={{
@@ -68,16 +65,54 @@ function BottomTabNavigator() {
             <TabBarIcon name='history' color={color} />
           ),
         }}
-        name='HistoryScreen'
-        component={SessionsHistoryScreen}
+        name='History'
+        component={HistoryStackNavigator}
       />
       <Tab.Screen
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name='gears' color={color} />,
         }}
-        name='SettingsScreen'
+        name='Settings'
         component={SettingsScreen}
       />
     </Tab.Navigator>
+  );
+}
+
+function HistoryStackNavigator() {
+  return (
+    <HistoryStack.Navigator
+      initialRouteName='SessionsHistoryScreen'
+      screenOptions={{ headerShown: false }}
+    >
+      <HistoryStack.Screen
+        name='SessionsHistoryScreen'
+        component={SessionsHistoryScreen}
+      />
+      <HistoryStack.Screen
+        name='SessionViewScreen'
+        component={SessionViewScreen}
+      />
+    </HistoryStack.Navigator>
+  );
+}
+
+function TasksStackNavigator() {
+  return (
+    <TasksStack.Navigator
+      id='TasksStackNavigator'
+      initialRouteName='TasksScreen'
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <TasksStack.Screen name='TasksScreen' component={TasksScreen} />
+      <TasksStack.Screen
+        name='SelectedTaskConfirmationScreen'
+        component={SelectedTaskConfirmationScreen}
+      />
+      <TasksStack.Screen name='SessionScreen' component={SessionScreen} />
+      <TasksStack.Screen name='SummaryScreen' component={SummaryScreen} />
+    </TasksStack.Navigator>
   );
 }

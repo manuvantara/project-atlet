@@ -1,16 +1,17 @@
+import { CommonActions } from '@react-navigation/native';
 import { Button, Heading, Text, VStack } from 'native-base';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import type { RootStackScreenProps } from '../types/navigation';
+import type { TasksScreenProps } from '../types/navigation';
 import { shareFile } from '../utils/SessionsLocalService';
-import { usePreventNavigationBack } from '../utils/hooks/usePreventNavigationBack';
 
 export default function SummaryScreen({
   navigation,
   route,
-}: RootStackScreenProps<'SummaryScreen'>) {
-  usePreventNavigationBack(navigation);
+}: TasksScreenProps<'SummaryScreen'>) {
+  // Prevent user from going back to the session screen
+  // usePreventNavigationBack(navigation, true);
 
   const {
     totalTimeSpent,
@@ -20,7 +21,22 @@ export default function SummaryScreen({
   } = route.params;
 
   const redirectToSessionsHistoryScreen = () => {
-    navigation.navigate<any>('HomeScreen'); // TODO: fix type
+    const TasksStackNavigator = navigation.getParent('TasksStackNavigator');
+
+    if (!TasksStackNavigator) {
+      throw new Error('TasksStackNavigator is not defined');
+    }
+
+    // Pop to the top of the stack
+    TasksStackNavigator.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'TasksScreen' }],
+      })
+    );
+
+    // Don't know why on navigate method we don't have intellisense about available screens
+    TasksStackNavigator.navigate('Home');
   };
 
   const shareSessionSummary = async (fileUri: string) => {

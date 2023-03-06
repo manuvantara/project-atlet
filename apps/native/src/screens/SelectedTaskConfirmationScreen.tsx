@@ -3,11 +3,11 @@ import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useSelectedTask } from '../stores/selectedTask.store';
-import type { RootStackScreenProps } from '../types/navigation';
+import type { TasksScreenProps } from '../types/navigation';
 
 export default function SelectedTaskConfirmationScreen({
   navigation,
-}: RootStackScreenProps<'SelectedTaskConfirmationScreen'>) {
+}: TasksScreenProps<'SelectedTaskConfirmationScreen'>) {
   const selectedTask = useSelectedTask((state) => state.selectedTask);
 
   return (
