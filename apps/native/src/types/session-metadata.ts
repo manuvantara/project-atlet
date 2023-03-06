@@ -62,8 +62,9 @@ export enum BicycleTypes {
 }
 
 export type SessionMetadata = {
+  appVersion: string;
   activity: ActivityTypes;
-  sessionMetadataSchemaVersion: '1.0.0';
+  sessionMetadataSchemaVersion: string;
 
   // accountId: string,
 
@@ -76,8 +77,14 @@ export type SessionMetadata = {
   bicycleType?: BicycleTypes;
   isElectric?: boolean; // e.g. there are folding bicycles as well as electric folding bicycles
 
+  // Check if the sensors are available on the device
+  // Optional because we will set it not on the task itself but on the session
+  isAccelerometerAvailable?: boolean;
+  isGyroscopeAvailable?: boolean;
+  isMagnetometerAvailable?: boolean;
+
   // Desired interval in milliseconds between sensor updates
-  sensorUpdateInterval: 16;
+  sensorUpdateInterval: number;
 };
 
 // export type SessionMetadata = CyclingSessionMetadata;
