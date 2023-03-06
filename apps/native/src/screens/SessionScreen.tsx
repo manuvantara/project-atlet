@@ -12,29 +12,19 @@ import type { Subscription } from 'rxjs';
 
 import { usePrivateKeyStore } from '../stores/privateKey.store';
 import { useSelectedTask } from '../stores/selectedTask.store';
-import type { RootStackScreenProps } from '../types/navigation';
+import type { TasksScreenProps } from '../types/navigation';
 import type { SensorReading } from '../types/sensors';
-import { Sensor } from '../types/session-metadata';
+import { Sensor, SessionMetadata } from '../types/session-metadata';
 import SessionsLocalService from '../utils/SessionsLocalService';
 import { SENSOR_READINGS_BATCH_SIZE } from '../utils/constants';
+import { useCheckSensorsAvailability } from '../utils/hooks/useCheckSensorsAvailability';
 import { usePreventNavigationBack } from '../utils/hooks/usePreventNavigationBack';
-
-// setUpdateIntervalForType(SensorTypes.accelerometer, 30);
-//
-// const subscription = accelerometer
-//   .pipe(
-//     catchError((error) => {
-//       Alert.alert('Error', error.message);
-//       return [];
-//     }),
-//     map(({ x, y, z }) => x + y + z)
-//   )
-//   .subscribe((speed) => console.log(`You moved your phone with ${speed}`));
 
 export default function SessionScreen({
   navigation,
-}: RootStackScreenProps<'SessionScreen'>) {
-  usePreventNavigationBack(navigation);
+}: TasksScreenProps<'SessionScreen'>) {
+  const { isSensorsAvailabilityChecked, availableSensors } =
+    useCheckSensorsAvailability();
 
   const selectedTask = useSelectedTask((state) => state.selectedTask);
   const privateKey = usePrivateKeyStore((state) => state.privateKey);
@@ -62,9 +52,11 @@ export default function SessionScreen({
   const [magnetometerSubscription, setMagnetometerSubscription] =
     useState<Subscription | null>(null);
 
+  usePreventNavigationBack(navigation, isRecording);
+
   const _accelerometerSubscribe = () => {
     setAccelerometerSubscription(
-      accelerometer.subscribe(({ x, y, z }) => {
+      accelerometer.subscribe(({ x, y, z, timestamp }) => {
         if (
           temporarySensorReadingsBatch.current.length ===
           SENSOR_READINGS_BATCH_SIZE
@@ -85,7 +77,7 @@ export default function SessionScreen({
         }
 
         temporarySensorReadingsBatch.current.push({
-          timestamp: Date.now(),
+          timestamp,
           sensor: Sensor.ACCELEROMETER,
           xAxis: x,
           yAxis: y,
@@ -97,7 +89,7 @@ export default function SessionScreen({
 
   const _gyroscopeSubscribe = () => {
     setGyroscopeSubscription(
-      gyroscope.subscribe(({ x, y, z }) => {
+      gyroscope.subscribe(({ x, y, z, timestamp }) => {
         if (
           temporarySensorReadingsBatch.current.length ===
           SENSOR_READINGS_BATCH_SIZE
@@ -130,7 +122,7 @@ export default function SessionScreen({
 
   const _magnetometerSubscribe = () => {
     setMagnetometerSubscription(
-      magnetometer.subscribe(({ x, y, z }) => {
+      magnetometer.subscribe(({ x, y, z, timestamp }) => {
         if (
           temporarySensorReadingsBatch.current.length ===
           SENSOR_READINGS_BATCH_SIZE
@@ -151,7 +143,7 @@ export default function SessionScreen({
         }
 
         temporarySensorReadingsBatch.current.push({
-          timestamp: Date.now(),
+          timestamp,
           sensor: Sensor.MAGNETOMETER,
           xAxis: x,
           yAxis: y,
@@ -183,19 +175,25 @@ export default function SessionScreen({
       SensorTypes.accelerometer,
       selectedTask.sessionMetadata.sensorUpdateInterval
     );
-    _accelerometerSubscribe();
+    if (availableSensors.ACCELEROMETER) {
+      _accelerometerSubscribe();
+    }
 
     setUpdateIntervalForType(
       SensorTypes.gyroscope,
       selectedTask.sessionMetadata.sensorUpdateInterval
     );
-    _gyroscopeSubscribe();
+    if (availableSensors.GYROSCOPE) {
+      _gyroscopeSubscribe();
+    }
 
     setUpdateIntervalForType(
       SensorTypes.magnetometer,
       selectedTask.sessionMetadata.sensorUpdateInterval
     );
-    _magnetometerSubscribe();
+    if (availableSensors.MAGNETOMETER) {
+      _magnetometerSubscribe();
+    }
 
     setStartTime(Date.now());
     setNow(Date.now());
@@ -204,12 +202,18 @@ export default function SessionScreen({
       clearInterval(intervalRef.current);
     }
 
-    // clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
       setNow(Date.now());
     }, 1000);
 
-    await sessionsLocalService.createSession(selectedTask.sessionMetadata);
+    const sessionMetadata: SessionMetadata = {
+      ...selectedTask.sessionMetadata,
+      isAccelerometerAvailable: availableSensors.ACCELEROMETER,
+      isGyroscopeAvailable: availableSensors.GYROSCOPE,
+      isMagnetometerAvailable: availableSensors.MAGNETOMETER,
+    };
+
+    await sessionsLocalService.createSession(sessionMetadata);
   };
 
   const handleStopRecording = async () => {
@@ -238,7 +242,7 @@ export default function SessionScreen({
       throw new Error('Start time or now is not defined');
     }
 
-    navigation.navigate('SummaryScreen', {
+    navigation.replace('SummaryScreen', {
       totalTimeSpent: (now - startTime) / 1000,
       totalSensorReadings,
       sessionFileUri,
@@ -272,7 +276,7 @@ export default function SessionScreen({
         {
           text: 'OK',
           onPress: () => {
-            navigation.navigate<any>('TasksScreen');
+            navigation.navigate('TasksScreen');
           },
         },
       ]
@@ -316,7 +320,11 @@ export default function SessionScreen({
           Stop recording
         </Button>
       ) : (
-        <Button className='w-full' onPress={handleStartRecording}>
+        <Button
+          className='w-full'
+          onPress={handleStartRecording}
+          disabled={!isSensorsAvailabilityChecked}
+        >
           Start recording
         </Button>
       )}
