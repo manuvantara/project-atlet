@@ -28,14 +28,10 @@
         "backgroundColor": "#FFFFFF"
       },
       "permissions": [
-        "HIGH_SAMPLING_RATE_SENSORS",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE",
-        "FOREGROUND_SERVICE",
-        "WAKE_LOCK"
+        "HIGH_SAMPLING_RATE_SENSORS"
       ],
       "package": "com.dreamqip.cryptoracer",
-      "versionCode": 4
+      "versionCode": 13
     },
     "web": {
       "favicon": "./assets/favicon.png"
