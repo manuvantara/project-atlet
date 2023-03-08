@@ -5,7 +5,7 @@ module.exports = function (api) {
     plugins: ['nativewind/babel'],
     env: {
       production: {
-        plugins: ['transform-remove-console'],
+        plugins: ['transform-remove-console', 'react-native-paper/babel'],
       },
     },
     // plugins: [
