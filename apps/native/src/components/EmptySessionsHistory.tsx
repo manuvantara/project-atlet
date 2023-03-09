@@ -1,6 +1,7 @@
-import { FontAwesome } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { Button, Icon, Text, VStack } from 'native-base';
+import { View } from 'react-native';
+import { Button, Text } from 'react-native-paper';
 
 export default function EmptySessionsHistory() {
   const { navigate } = useNavigation();
@@ -12,15 +13,24 @@ export default function EmptySessionsHistory() {
     });
   };
 
+  const plusIcon = () => (
+    <MaterialCommunityIcons name='plus' size={24} color='white' />
+  );
+
   return (
-    <VStack flex={1} alignItems='center' justifyContent='center' mt={8}>
-      <Icon as={FontAwesome} name='history' size='4xl' />
-      <Text fontSize='xl' mt={4}>
-        No sessions found
+    <View className='flex-1 justify-center items-center h-full px-4 pt-10'>
+      <MaterialCommunityIcons name='emoticon-sad-outline' size={100} />
+      <Text variant='bodyLarge' className='text-center my-4'>
+        You haven't completed any sessions yet.
       </Text>
-      <Button mt={4} onPress={navigateToTasksScreen}>
-        Start a new session
+      <Button
+        mode='contained'
+        onPress={navigateToTasksScreen}
+        className='w-full'
+        icon={plusIcon}
+      >
+        Start Session
       </Button>
-    </VStack>
+    </View>
   );
 }

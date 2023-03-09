@@ -1,12 +1,13 @@
+import { useState } from 'react';
+import { View } from 'react-native';
 import {
   Button,
-  Center,
-  FormControl,
-  Heading,
-  Input,
-  WarningOutlineIcon,
-} from 'native-base';
-import { useState } from 'react';
+  HelperText,
+  Surface,
+  Text,
+  TextInput,
+} from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { usePrivateKeyStore } from '../stores/privateKey.store';
 
@@ -59,46 +60,64 @@ export default function WelcomeScreen() {
     return regex.test(username);
   };
 
-  const isPrivateKeyValid = validatePrivateKey(privateKeyInput);
+  const hasError = () => {
+    return !validatePrivateKey(privateKeyInput) && privateKeyInput.length > 0;
+  };
 
   return (
-    <Center flex={1} px={4} className='bg-primary'>
-      <Heading size='2xl' className='mb-8'>
-        Welcome!
-      </Heading>
-      {/*<Text className='mb-2 text-left w-full'>*/}
-      {/*  Enter your username to sign in*/}
-      {/*</Text>*/}
-      {/*<Input*/}
-      {/*  mx='3'*/}
-      {/*  size='lg'*/}
-      {/*  value={privateKeyInput}*/}
-      {/*  onChangeText={setPrivateKeyInput}*/}
-      {/*  placeholder='Enter your username here'*/}
-      {/*  w='100%'*/}
-      {/*  mb={4}*/}
-      {/*/>*/}
-      <FormControl isInvalid={!isPrivateKeyValid} w='100%' mb={6}>
-        <FormControl.Label>Enter your username below:</FormControl.Label>
-        <Input
-          size='lg'
-          value={privateKeyInput}
-          onChangeText={setPrivateKeyInput}
-          placeholder='pantemon'
-          w='100%'
-        />
-        <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size='xs' />}>
-          You can use only a-Z and 0-9. Minimum length is 5 characters.
-        </FormControl.ErrorMessage>
-      </FormControl>
-      <Button
-        minW={150}
-        w='100%'
-        onPress={handleSignIn}
-        disabled={!isPrivateKeyValid}
-      >
-        Sign in
-      </Button>
-    </Center>
+    <SafeAreaView className='flex-1'>
+      <Surface className='flex-1 justify-center items-center px-4'>
+        <Text variant='headlineLarge' className='mb-8'>
+          Welcome!
+        </Text>
+        {/*<Text className='mb-2 text-left w-full'>*/}
+        {/*  Enter your username to sign in*/}
+        {/*</Text>*/}
+        {/*<Input*/}
+        {/*  mx='3'*/}
+        {/*  size='lg'*/}
+        {/*  value={privateKeyInput}*/}
+        {/*  onChangeText={setPrivateKeyInput}*/}
+        {/*  placeholder='Enter your username here'*/}
+        {/*  w='100%'*/}
+        {/*  mb={4}*/}
+        {/*/>*/}
+        {/*<FormControl isInvalid={!isPrivateKeyValid} w='100%' mb={6}>*/}
+        {/*  <FormControl.Label>Enter your username below:</FormControl.Label>*/}
+        {/*  <Input*/}
+        {/*    size='lg'*/}
+        {/*    value={privateKeyInput}*/}
+        {/*    onChangeText={setPrivateKeyInput}*/}
+        {/*    placeholder='pantemon'*/}
+        {/*    w='100%'*/}
+        {/*  />*/}
+        {/*  <FormControl.ErrorMessage leftIcon={<WarningOutlineIcon size='xs' />}>*/}
+        {/*    You can use only a-Z and 0-9. Minimum length is 5 characters.*/}
+        {/*  </FormControl.ErrorMessage>*/}
+        {/*</FormControl>*/}
+        <View className='w-full'>
+          <TextInput
+            label='Enter your username below:'
+            value={privateKeyInput}
+            onChangeText={setPrivateKeyInput}
+            placeholder='pantemon'
+            right={<TextInput.Icon icon='account' />}
+            error={hasError()}
+          />
+          <HelperText type='error' visible={hasError()}>
+            You can use only a-Z and 0-9. Minimum length is 5 characters.
+          </HelperText>
+        </View>
+        <View className='w-full'>
+          <Button
+            mode='contained'
+            onPress={handleSignIn}
+            disabled={!validatePrivateKey(privateKeyInput)}
+          >
+            Sign in
+          </Button>
+        </View>
+      </Surface>
+    </SafeAreaView>
   );
 }

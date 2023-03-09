@@ -1,6 +1,7 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CommonActions } from '@react-navigation/native';
-import { Button, Heading, Text, VStack } from 'native-base';
 import { View } from 'react-native';
+import { Button, Divider, List, Surface, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { TasksScreenProps } from '../types/navigation';
@@ -10,9 +11,6 @@ export default function SummaryScreen({
   navigation,
   route,
 }: TasksScreenProps<'SummaryScreen'>) {
-  // Prevent user from going back to the session screen
-  // usePreventNavigationBack(navigation, true);
-
   const {
     totalTimeSpent,
     totalSensorReadings,
@@ -44,37 +42,45 @@ export default function SummaryScreen({
   };
 
   return (
-    <SafeAreaView className='flex-1 px-4 pb-10 bg-primary'>
-      <View className='pt-36'>
-        <Heading size='2xl' className='mb-4 text-center'>
-          Thank you very much for your contribution!
-        </Heading>
-        <Text className='mb-4 text-center'>
-          You have spent {totalTimeSpent.toFixed(0)} seconds and recorded{' '}
-          {totalSensorReadings} sensor readings.
-        </Text>
-      </View>
-      <VStack className='mb-4' space={6}>
-        <View>
-          <Text className='text-md mb-2 leading-tight tracking-tighter'>
-            {sessionFileUri.split('/')[8]}
+    <SafeAreaView className='flex-1'>
+      <Surface className='flex-1 px-4'>
+        <View className='pt-20 justify-center items-center'>
+          <Text variant='headlineLarge' className='mb-4 text-center'>
+            Thank you very much for your contribution!
           </Text>
-          <Button onPress={() => shareSessionSummary(sessionFileUri)}>
-            Share session.json
-          </Button>
-        </View>
-        <View>
-          <Text className='text-md mb-2 leading-tight tracking-tighter'>
-            {sensorReadingsFileUri.split('/')[8]}
+          <MaterialCommunityIcons name='check-circle' size={72} color='green' />
+          <Text variant='bodyLarge' className='mt-4 text-center'>
+            You have contributed to the research by recording a session for{' '}
+            {totalTimeSpent.toFixed(0)} seconds and {totalSensorReadings} sensor
+            readings.
           </Text>
-          <Button onPress={() => shareSessionSummary(sensorReadingsFileUri)}>
-            Share sensor-readings.csv
-          </Button>
         </View>
-      </VStack>
-      <Button className='mt-auto' onPress={redirectToSessionsHistoryScreen}>
-        Continue
-      </Button>
+        <Surface
+          className='my-4 overflow-hidden rounded-md w-full'
+          elevation={4}
+        >
+          <List.Item
+            title={sessionFileUri.split('/')[8]}
+            description='session.json'
+            left={(props) => (
+              <List.Icon {...props} icon='file-document-outline' />
+            )}
+            onPress={() => shareSessionSummary(sessionFileUri)}
+          />
+          <Divider />
+          <List.Item
+            title={sensorReadingsFileUri.split('/')[8]}
+            description='sensor-readings.csv'
+            left={(props) => (
+              <List.Icon {...props} icon='file-document-outline' />
+            )}
+            onPress={() => shareSessionSummary(sensorReadingsFileUri)}
+          />
+        </Surface>
+        <Button mode='contained' onPress={redirectToSessionsHistoryScreen}>
+          Continue
+        </Button>
+      </Surface>
     </SafeAreaView>
   );
 }

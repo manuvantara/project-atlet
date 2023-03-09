@@ -1,4 +1,4 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import HomeScreen from './HomeScreen';
@@ -20,7 +20,7 @@ import type {
 } from '../types/navigation';
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
-const Tab = createBottomTabNavigator<TabNavigatorParamList>();
+const Tab = createMaterialBottomTabNavigator<TabNavigatorParamList>();
 
 const HistoryStack = createNativeStackNavigator<HistoryScreenParamList>();
 const TasksStack = createNativeStackNavigator<TasksScreenParamList>();
@@ -44,7 +44,11 @@ export default function Navigation() {
 
 function BottomTabNavigator() {
   return (
-    <Tab.Navigator id='TabNavigation' screenOptions={{ headerShown: false }}>
+    <Tab.Navigator
+      id='TabNavigation'
+      sceneAnimationEnabled
+      sceneAnimationType='shifting'
+    >
       <Tab.Screen
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name='home' color={color} />,
@@ -54,7 +58,9 @@ function BottomTabNavigator() {
       />
       <Tab.Screen
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name='tasks' color={color} />,
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name='format-list-checks' color={color} />
+          ),
         }}
         name='Tasks'
         component={TasksStackNavigator}
@@ -70,7 +76,9 @@ function BottomTabNavigator() {
       />
       <Tab.Screen
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name='gears' color={color} />,
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name='account-cog' color={color} />
+          ),
         }}
         name='Settings'
         component={SettingsScreen}

@@ -3,8 +3,6 @@ apply plugin: "com.facebook.react"
 
 import com.android.build.OutputFile
 
-implementation project(':react-native-sensors')
-
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
 def expoDebuggableVariants = ['debug']
 // Override `debuggableVariants` for expo-updates debugging
@@ -120,7 +118,7 @@ android {
         applicationId 'com.dreamqip.cryptoracer'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 4
+        versionCode 13
         versionName "1.0.0"
     }
 

@@ -1,6 +1,14 @@
-import { Button, Center, Heading, HStack, Text } from 'native-base';
 import { useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
+import {
+  Appbar,
+  Button,
+  Divider,
+  List,
+  Surface,
+  Text,
+} from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   accelerometer,
   gyroscope,
@@ -284,50 +292,51 @@ export default function SessionScreen({
   };
 
   return (
-    <Center flex={1} px={4} className='bg-primary'>
-      {!isRecording && (
-        <HStack w='100%' mb={4}>
-          <Button onPress={handleCancelSession}>Back</Button>
-        </HStack>
-      )}
-      <Heading size='2xl' className='mb-4'>
-        Session
-      </Heading>
-      <View className='mb-4'>
-        <Heading size='md' className='mb-2'>
-          Description
-        </Heading>
-        <Text className='text-lg'>{selectedTask.description}</Text>
-      </View>
-      <View className='flex-col w-full mb-6'>
-        <View className='flex-row justify-between items-center w-full bg-secondary p-2 rounded-md mb-2'>
-          <View className='flex-row p-1 bg-quinary opacity-80 rounded-md'>
-            <Text className='text-lg'>Time spent: </Text>
-          </View>
-          <Text className='text-lg'>{formatSecondsPassed(secondsPassed)}</Text>
+    <SafeAreaView className='flex-1'>
+      <Appbar.Header>
+        <Appbar.BackAction
+          disabled={isRecording}
+          onPress={handleCancelSession}
+        />
+        <Appbar.Content title='Session' />
+      </Appbar.Header>
+      <Surface className='flex-1 px-4'>
+        <View className='mb-4 pt-8'>
+          <Text variant='titleLarge'>Description</Text>
+          <Divider bold className='my-2' />
+          <Text variant='bodyLarge'>{selectedTask.description}</Text>
         </View>
-        <View className='flex-row justify-between items-center w-full bg-secondary p-2 rounded-md mb-2'>
-          <View className='flex-row p-1 bg-quinary opacity-80 rounded-md'>
-            <Text className='text-lg'>Sensor readings collected: </Text>
-          </View>
-          <Text className='text-lg'>
-            {totalWrittenSensorReadingsBatches * SENSOR_READINGS_BATCH_SIZE}
-          </Text>
+        <Surface className='flex-col w-full rounded-md' elevation={4}>
+          <List.Item
+            title='Time'
+            description={formatSecondsPassed(secondsPassed)}
+            left={(props) => <List.Icon {...props} icon='clock' />}
+          />
+          <Divider />
+          <List.Item
+            title='Sensor readings'
+            description={`${
+              totalWrittenSensorReadingsBatches * SENSOR_READINGS_BATCH_SIZE
+            } written`}
+            left={(props) => <List.Icon {...props} icon='chart-line' />}
+          />
+        </Surface>
+        <View className='w-full mt-4'>
+          {isRecording ? (
+            <Button mode='contained' onPress={handleStopRecording}>
+              Stop recording
+            </Button>
+          ) : (
+            <Button
+              mode='contained'
+              onPress={handleStartRecording}
+              disabled={!isSensorsAvailabilityChecked}
+            >
+              Start recording
+            </Button>
+          )}
         </View>
-      </View>
-      {isRecording ? (
-        <Button className='w-full' onPress={handleStopRecording}>
-          Stop recording
-        </Button>
-      ) : (
-        <Button
-          className='w-full'
-          onPress={handleStartRecording}
-          disabled={!isSensorsAvailabilityChecked}
-        >
-          Start recording
-        </Button>
-      )}
-    </Center>
+      </Surface>
+    </SafeAreaView>
   );
 }

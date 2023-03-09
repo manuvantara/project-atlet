@@ -1,9 +1,9 @@
-import { FontAwesome } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
 
 export default function TabBarIcon(props: {
-  name: ComponentProps<typeof FontAwesome>['name'];
+  name: ComponentProps<typeof MaterialCommunityIcons>['name'];
   color: string;
 }) {
-  return <FontAwesome size={20} {...props} />;
+  return <MaterialCommunityIcons size={20} {...props} />;
 }

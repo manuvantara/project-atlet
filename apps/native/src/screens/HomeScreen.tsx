@@ -1,4 +1,5 @@
-import { Button, Center, Heading } from 'native-base';
+import { Surface, Text, Button } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { TabScreenProps } from '../types/navigation';
 
@@ -8,11 +9,13 @@ export default function HomeScreen({ navigation }: TabScreenProps<'Home'>) {
   };
 
   return (
-    <Center flex={1} px={4} className='bg-primary'>
-      <Heading size='2xl' className='mb-4'>
-        Welcome!
-      </Heading>
-      <Button onPress={startSession}>Start a session!</Button>
-    </Center>
+    <SafeAreaView className='flex-1'>
+      <Surface className='flex-1 justify-center items-center gap-4'>
+        <Text variant='headlineLarge'>Home</Text>
+        <Button mode='contained' onPress={startSession}>
+          Start Session
+        </Button>
+      </Surface>
+    </SafeAreaView>
   );
 }

@@ -1,9 +1,18 @@
-import { DarkTheme, NavigationContainer } from '@react-navigation/native';
+import {
+  NavigationContainer,
+  DarkTheme as NavigationDarkTheme,
+} from '@react-navigation/native';
+import merge from 'deepmerge';
 import { StatusBar } from 'expo-status-bar';
-import { extendTheme, NativeBaseProvider } from 'native-base';
+import { NativeBaseProvider } from 'native-base';
 import { useEffect } from 'react';
 import { Alert, PermissionsAndroid } from 'react-native';
 import ErrorBoundary from 'react-native-error-boundary';
+import {
+  adaptNavigationTheme,
+  MD3DarkTheme,
+  Provider as PaperProvider,
+} from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import Navigation from './src/screens/Navigation';
@@ -45,11 +54,11 @@ const requestStoragePermission = async () => {
 export default function App() {
   const hasHydrated = usePrivateKeyStore((state) => state._hasHydrated);
 
-  const theme = extendTheme({
-    config: {
-      initialColorMode: 'dark',
-    },
+  const { DarkTheme } = adaptNavigationTheme({
+    reactNavigationDark: NavigationDarkTheme,
   });
+
+  const CombinedDarkTheme = merge(MD3DarkTheme, DarkTheme);
 
   useEffect(() => {
     requestStoragePermission();
@@ -73,13 +82,15 @@ export default function App() {
 
   return (
     <ErrorBoundary onError={handleError}>
-      <NavigationContainer theme={DarkTheme}>
-        <NativeBaseProvider theme={theme}>
-          <SafeAreaProvider>
-            <Navigation />
-            <StatusBar style='auto' />
-          </SafeAreaProvider>
-        </NativeBaseProvider>
+      <NavigationContainer theme={CombinedDarkTheme}>
+        <PaperProvider theme={CombinedDarkTheme}>
+          <NativeBaseProvider>
+            <SafeAreaProvider>
+              <Navigation />
+              <StatusBar style='auto' />
+            </SafeAreaProvider>
+          </NativeBaseProvider>
+        </PaperProvider>
       </NavigationContainer>
     </ErrorBoundary>
   );
