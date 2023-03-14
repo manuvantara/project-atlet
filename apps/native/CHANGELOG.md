@@ -9,11 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added Dutch translation
-
-### Fixed
-
-- Fixed foldouts in Dutch translation
+- Material 3 design for the app.
 
 ## [1.0.0-alpha.13] - 2023-03-05
 
@@ -302,7 +298,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [//]: # (- Counter-examples: "What makes unicorns cry?")
 
-[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...HEAD
+[unreleased]: https://drive.google.com/file/d/1cfG03ar9JeOecxR_UWgu-pniy3dZUAD3/view?usp=share_link
 [1.0.0-alpha.13]: https://drive.google.com/file/d/1kPLO0eqnjbGketiqUKG-wmRpa4mU247i/view?usp=share_link
 [1.1.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/olivierlacan/keep-a-changelog/compare/v0.3.0...v1.0.0
